@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+
 module.exports = {
     entry:__dirname + '/src/main.js',
     output:{
@@ -10,44 +12,36 @@ module.exports = {
         rules:[
             {
                 test:/\.js$/,
-                use:{
-                    loader:'babel-loader',
-                    options:{
-                        presets:[
-                            [
-                                "env",
-                                {
-                                    "modules":false,
-                                    "targets":{
-                                        "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]s
-                                    }
-                                }
-                            ]
-                        ]
-                    }
-                }
+                use:['babel-loader'],
+                exclude:/node_modules/
             },
             {
                 test:/\.css$/,
-                loader:'style-loader!css-loader'
+                use:['style-loader','css-loader']
             },
             {
                 test:/\.styl$/,
-                loader:'style-loader!css-loader!stylus-loader'
+                use:['style-loader','css-loader','stylus-loader']
+            },
+            {
+                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 1000,
+                    name:'img/[name].[hash:7].[ext]',
+                }
             }
         ]
     },
     plugins:[
-        new HtmlWebpackPlugin({
-            template:'./src/index.html'
-        }),
-        new CleanWebpackPlugin(['./dist/*.*'],{
+        new CleanWebpackPlugin(['./dist/*'],{
             root: __dirname,       　　　　　　　　　　//根目录
             verbose:  true,        　　　　　　　　　　//开启在控制台输出信息
             dry:      false        　　　　　　　　　　//启用删除文件
+        }),
+        new UglifyJSPlugin(),
+        new HtmlWebpackPlugin({
+            template:'./src/index.html'
         })
-        
-        
-        
     ]
 }
